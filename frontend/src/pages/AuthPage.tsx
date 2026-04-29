@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import GoogleIcon from "@/assets/icons/google.svg?react";
+import GoogleIcon from "@/assets/icons/Google.svg?react";
 import MobileCarousel from "@/components/auth/MobileCarousel";
 import DesktopCarousel from "@/components/auth/DesktopCarousel";
 
