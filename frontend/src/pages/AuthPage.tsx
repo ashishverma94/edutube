@@ -22,7 +22,7 @@ type Step = "email" | "otp" | "success";
 
 export default function AuthPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<Step>("otp");
+  const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [loading, setLoading] = useState(false);
