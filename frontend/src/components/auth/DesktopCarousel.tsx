@@ -12,7 +12,6 @@ export const SLIDES = [
     color: "#02ae02",
     headline: "Watch together,\nperfectly in sync",
     sub: 'Play, pause, seek — every action synced instantly for everyone in the room. No lag, no "wait go back".',
-    // SVG-based illustration: video player mockup
     img: Slide1,
   },
   {
@@ -65,7 +64,7 @@ const DesktopCarousel = () => {
 
   return (
     <div
-      className="hidden lg:flex lg:w-[52%] xl:w-[54%] relative overflow-hidden flex-col"
+      className="hidden md:flex md:w-[50%] lg:w-[52%] xl:w-[54%] relative overflow-hidden flex-col"
       style={{
         background:
           "linear-gradient(160deg,#080f08 0%,#0d1a0d 50%,#0a150a 100%)",
@@ -83,7 +82,7 @@ const DesktopCarousel = () => {
 
       {/* Glow that follows active slide color */}
       <div
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none transition-all duration-1000"
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 size-125 rounded-full blur-[120px] pointer-events-none transition-all duration-1000"
         style={{ background: S.color, opacity: 0.07 }}
       />
 

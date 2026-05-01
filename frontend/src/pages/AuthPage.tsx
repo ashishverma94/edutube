@@ -1,5 +1,4 @@
 import {
-  Tv2,
   Mail,
   RefreshCw,
   ArrowRight,
@@ -11,22 +10,36 @@ import {
   InputOTPSlot,
   InputOTPGroup,
 } from "@/components/ui/input-otp";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { authApi } from "@/lib/api";
+import { lazy, Suspense } from "react";
 import { useState, useEffect } from "react";
+import Logo from "@/assets/common/Logo.png";
+import TextInput from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 import GoogleIcon from "@/assets/icons/Google.svg?react";
-import MobileCarousel from "@/components/auth/MobileCarousel";
-import DesktopCarousel from "@/components/auth/DesktopCarousel";
+
+const MobileCarousel = lazy(() => import("@/components/auth/MobileCarousel"));
+const DesktopCarousel = lazy(() => import("@/components/auth/DesktopCarousel"));
 
 type Step = "email" | "otp" | "success";
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("email");
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("hariashish1@gmail.com");
   const [resendSecs, setResendSecs] = useState(0);
+  const [otpValue, setOtpValue] = useState("");
+
+  // LOADING STATES
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const isValidEmail = EMAIL_REGEX.test(email.trim());
+  const emailError =
+    email && !isValidEmail ? "Enter a valid email address" : "";
 
   // Resend timer
   useEffect(() => {
@@ -35,47 +48,61 @@ export default function AuthPage() {
     return () => clearInterval(t);
   }, [resendSecs]);
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailError("Enter a valid email address");
-      return;
-    }
-    setEmailError("");
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setLoading(false);
-    setStep("otp");
-    setResendSecs(60);
-  };
+  const sendOtpMutation = useMutation({
+    mutationFn: authApi.sendOtp,
+    onSuccess: () => {
+      setStep("otp");
+      setResendSecs(60);
+      toast.success("OTP sent!", {
+        description: `Verification code sent to ${email}`,
+      });
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to send OTP", {
+        description: error.message,
+      });
+    },
+  });
 
-  const handleOtpComplete = async (otp: string) => {
-    console.log("OTP:", otp); // use it for API later
-
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setLoading(false);
-
-    sessionStorage.setItem("wp_username", email.split("@")[0]);
-    setStep("success");
-    setTimeout(() => navigate("/"), 1600);
-  };
+  const verifyOtpMutation = useMutation({
+    mutationFn: (otp: string) => authApi.verifyOtp(email, otp),
+    onSuccess: () => {
+      sessionStorage.setItem("wp_username", email.split("@")[0]);
+      setStep("success");
+    },
+    onError: (error: Error) => {
+      setOtpValue("");
+      toast.error("Failed to verify OTP", {
+        description: error.message,
+      });
+    },
+  });
 
   const handleGoogle = async () => {
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    sessionStorage.setItem("wp_username", "GoogleUser");
-    navigate("/");
+    setGoogleLoading(true);
+    try {
+      await new Promise((r) => setTimeout(r, 1000));
+      sessionStorage.setItem("wp_username", "GoogleUser");
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
+  useEffect(() => {
+    if (step !== "success") return;
+    const t = setTimeout(() => navigate("/"), 5600);
+    return () => clearTimeout(t);
+  }, [step, navigate]);
+
   return (
-    <div className="h-screen overflow-hidden flex flex-col lg:flex-row font-body">
+    <div className="h-screen overflow-hidden flex flex-col md:flex-row font-body">
       <div className="flex-1 flex flex-col bg-white">
         <div className="flex items-center justify-between px-8 py-5">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-primary-500 flex items-center justify-center shadow-[0_4px_12px_rgba(2,174,2,0.35)]">
-              <Tv2 className="w-4 h-4 text-white" />
-            </div>
+            <img src={Logo} alt="edutube-logo" className="h-10" />
             <span className="font-display font-black text-gray-900 text-lg">
               Edu<span className="text-primary-500">Tube</span>
             </span>
@@ -92,12 +119,11 @@ export default function AuthPage() {
             {step === "email" && (
               <div key="email" className="animate-fade-in">
                 <div className="mb-8">
-                  <h1 className="font-display font-black text-[2.25rem] leading-tight text-gray-900 mb-3">
-                    Sign in to
-                    <br />
-                    <span className="text-primary-500">WatchParty</span>
+                  <h1 className="font-display font-black text-[2.25rem] max-md:text-center leading-tight text-gray-900 mb-3">
+                    Sign in to{"  "}
+                    <span className="text-primary-500">EduTube</span>
                   </h1>
-                  <p className="text-gray-500 text-sm leading-relaxed">
+                  <p className="text-gray-500 text-sm leading-relaxed max-md:text-center">
                     New here? We'll create your account automatically. No
                     passwords, ever.
                   </p>
@@ -106,7 +132,7 @@ export default function AuthPage() {
                 {/* Google button */}
                 <button
                   onClick={handleGoogle}
-                  disabled={loading}
+                  disabled={googleLoading}
                   className="w-full h-13 rounded-2xl border-2 border-surface-200 bg-white hover:border-surface-300 hover:bg-surface-50 active:scale-[0.99] transition-all flex items-center justify-center gap-3 font-display font-semibold text-gray-700 text-sm shadow-sm mb-5 disabled:opacity-60"
                 >
                   <GoogleIcon />
@@ -123,41 +149,28 @@ export default function AuthPage() {
                 </div>
 
                 {/* Email form */}
-                <form onSubmit={handleEmailSubmit} className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-display font-bold text-gray-500 uppercase tracking-wider mb-2">
-                      Email address
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => {
-                          setEmail(e.target.value);
-                          setEmailError("");
-                        }}
-                        placeholder="you@example.com"
-                        autoFocus
-                        className={cn(
-                          "w-full h-13 pl-11 pr-4 rounded-2xl border-2 outline-none transition-all text-sm bg-surface-50 text-gray-900 placeholder:text-gray-400",
-                          emailError
-                            ? "border-red-300 bg-red-50/50 focus:border-red-400 focus:shadow-[0_0_0_4px_rgba(239,68,68,0.08)]"
-                            : "border-surface-200 focus:border-primary-400 focus:bg-white focus:shadow-[0_0_0_4px_rgba(2,174,2,0.08)]",
-                        )}
-                      />
-                    </div>
-                    {emailError && (
-                      <p className="text-xs text-red-500 mt-2 flex items-center gap-1">
-                        <span className="w-1 h-1 rounded-full bg-red-500 inline-block shrink-0" />
-                        {emailError}
-                      </p>
-                    )}
-                  </div>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!isValidEmail) return;
+                    sendOtpMutation.mutate(email);
+                  }}
+                  className="space-y-3 flex flex-col gap-8"
+                >
+                  <TextInput
+                    label="EMAIL ADDRESS"
+                    requiredAsterisk
+                    Icon={<Mail className="size-4 text-gray-500" />}
+                    position="left"
+                    placeholder="you@example.com"
+                    error={emailError}
+                    inputValue={email}
+                    onChange={setEmail}
+                  />
 
                   <button
                     type="submit"
-                    disabled={loading || !email}
+                    disabled={sendOtpMutation.isPending || !email}
                     className={cn(
                       "w-full h-13 rounded-2xl font-display font-bold text-sm text-white transition-all flex items-center justify-center gap-2",
                       "bg-primary-500 hover:bg-primary-600 active:scale-[0.99]",
@@ -165,7 +178,7 @@ export default function AuthPage() {
                       "disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed",
                     )}
                   >
-                    {loading ? (
+                    {sendOtpMutation.isPending ? (
                       <RefreshCw className="w-4 h-4 animate-spin" />
                     ) : (
                       <>
@@ -205,37 +218,40 @@ export default function AuthPage() {
                   <ChevronLeft className="w-3.5 h-3.5" /> Back to email
                 </button>
 
-                <div className="w-14 h-14 rounded-2xl bg-primary-50 border-2 border-primary-100 flex items-center justify-center mb-6 shadow-[0_4px_16px_rgba(2,174,2,0.12)]">
-                  <Mail className="w-6 h-6 text-primary-600" />
+                <div className="w-20 h-20 rounded-3xl bg-primary-50 border-2 border-primary-200 flex items-center justify-center max-md:mx-auto mb-6 shadow-[0_8px_32px_rgba(2,174,2,0.2)]">
+                  <Mail className="w-8 h-8 text-primary-500" />
                 </div>
 
-                <h1 className="font-display font-black text-[2rem] leading-tight text-gray-900 mb-2">
+                <h1 className="font-display max-md:text-center font-black text-[2rem] leading-tight text-gray-900 mb-2">
                   Check your inbox
                 </h1>
-                <p className="text-sm text-gray-500 mb-1">
+                <p className="text-sm text-gray-500 mb-1 max-md:text-center">
                   We sent a 6-digit code to
                 </p>
-                <p className="font-display font-bold text-gray-900 text-sm mb-8">
+                <p className="font-display font-bold text-gray-900 text-sm mb-8 max-md:text-center">
                   {email}
                 </p>
 
                 <InputOTP
                   maxLength={6}
-                  disabled={loading}
-                  onComplete={(value) => handleOtpComplete(value)}
+                  disabled={verifyOtpMutation.isPending}
+                  onComplete={verifyOtpMutation.mutate}
+                  onChange={setOtpValue}
                   className="w-full"
+                  value={otpValue}
                 >
                   <InputOTPGroup className="w-full flex justify-between gap-2.5">
                     {Array.from({ length: 6 }).map((_, i) => (
                       <InputOTPSlot
                         key={i}
                         index={i}
-                        className="flex-1 h-14 rounded-xl border-2 text-center text-2xl font-mono font-black border-surface-300 bg-surface-100 text-gray-900 data-[active=true]:border-primary-500 data-[active=true]:bg-primary-100 data-[active=true]:shadow-[0_0_0_4px_rgba(2,174,2,0.08)]"
+                        aria-invalid={verifyOtpMutation.isError}
                       />
                     ))}
                   </InputOTPGroup>
                 </InputOTP>
-                {loading && (
+
+                {verifyOtpMutation.isPending && (
                   <div className="flex items-center justify-center gap-2 mt-6 text-sm text-primary-600 font-display font-semibold">
                     <RefreshCw className="w-4 h-4 animate-spin" />
                     Verifying code…
@@ -308,8 +324,17 @@ export default function AuthPage() {
         </div>
       </div>
 
-      <DesktopCarousel />
-      <MobileCarousel />
+      <Suspense
+        fallback={
+          <div className="hidden lg:flex lg:w-[52%] xl:w-[54%] bg-surface-50" />
+        }
+      >
+        <DesktopCarousel />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <MobileCarousel />
+      </Suspense>
     </div>
   );
 }

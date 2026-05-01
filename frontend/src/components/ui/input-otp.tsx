@@ -1,8 +1,6 @@
 import * as React from "react"
-import { OTPInput, OTPInputContext } from "input-otp"
-import { MinusIcon } from "lucide-react"
-
 import { cn } from "@/lib/utils"
+import { OTPInput, OTPInputContext } from "input-otp"
 
 function InputOTP({
   className,
@@ -49,7 +47,12 @@ function InputOTPSlot({
       data-slot="input-otp-slot"
       data-active={isActive}
       className={cn(
-        "relative flex h-9 w-9 items-center justify-center border-y border-r border-input text-sm shadow-xs transition-all outline-none aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40",
+        "relative flex items-center justify-center text-sm transition-all outline-none",
+        "h-9 w-9 border-y border-r border-input shadow-xs",
+        "flex-1 h-14 rounded-xl border-2 text-center text-2xl font-mono font-black border-surface-300 bg-surface-100 text-gray-900",
+        "data-[active=true]:z-10 data-[active=true]:border-primary-500 data-[active=true]:bg-primary-100 data-[active=true]:shadow-[0_0_0_4px_rgba(2,174,2,0.08)]",
+        "aria-invalid:border-red-500 aria-invalid:bg-red-50 aria-invalid:shadow-[0_0_0_4px_rgba(239,68,68,0.08)]",
+        "data-[active=true]:aria-invalid:border-red-500 border-3 data-[active=true]:aria-invalid:ring-2 data-[active=true]:aria-invalid:ring-red-500/20",
         className
       )}
       {...props}
@@ -64,12 +67,5 @@ function InputOTPSlot({
   )
 }
 
-function InputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
-  return (
-    <div data-slot="input-otp-separator" role="separator" {...props}>
-      <MinusIcon />
-    </div>
-  )
-}
 
-export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator }
+export { InputOTP, InputOTPGroup, InputOTPSlot }
