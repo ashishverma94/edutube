@@ -8,6 +8,7 @@ import { requestLogger, printBanner } from "./middleware/logger.js";
 import authRoutes from "./routes/auth.route.js";
 import passport from "passport";
 
+
 // ─── App setup ────────────────────────────────────────────────────────────────
 
 const app = express();
@@ -15,7 +16,8 @@ const server = http.createServer(app);
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 
-app.use(cors({ origin: config.cors.origin }));
+// app.use(cors({ origin: config.cors.origin }));
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(requestLogger);
 app.use(passport.initialize());
