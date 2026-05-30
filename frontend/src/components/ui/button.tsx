@@ -6,12 +6,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
 const buttonVariants = cva(
-  "inline-flex font-[] cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-[20px] [corner-shape:squircle] font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed [&_svg]:size-4 [&_svg]:shrink-0 shadow-[0px_0px_0px_1px_hsla(196,87%,9%,0.1)_inset,0px_0px_0px_0px_hsla(221,100%,65%,1)_inset] disabled:border-neutral-300 disabled:border-[0.5px] font-[poppins]",
+  "inline-flex font-[] cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-[20px] [corner-shape:squircle] font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed [&_svg]:size-4 [&_svg]:shrink-0 shadow-[0px_0px_0px_1px_hsla(196,87%,9%,0.1)_inset,0px_0px_0px_0px_hsla(221,100%,65%,1)_inset] disabled:border-[0.5px] font-[poppins]",
   {
     variants: {
       variant: {
         primary:
-          "bg-primary-500 font-medium text-white hover:bg-primary-400 focus:bg-primary-700 disabled:bg-neutral-500 disabled:text-neutral-600 text-base border",
+          "bg-primary-500 font-medium text-white hover:bg-primary-400 focus:bg-primary-700 disabled:bg-neutral-500 disabled:text-neutral-600 text-base",
         secondary:
           "bg-white text-primary-500 border border-primary-500 hover:bg-primary-200 hover:border-primary-300 focus:bg-primary-300 focus:border-primary-400 disabled:bg-white disabled:text-neutral-600",
         secondaryNeutral:

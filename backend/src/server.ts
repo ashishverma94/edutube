@@ -7,6 +7,8 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { requestLogger, printBanner } from "./middleware/logger.js";
 import authRoutes from "./routes/auth.route.js";
 import passport from "passport";
+import { downloadAudioFromVideoId } from "./services/ai.service.js";
+import aiRouter from "./routes/ai.route.js";
 
 
 // ─── App setup ────────────────────────────────────────────────────────────────
@@ -26,6 +28,7 @@ app.use(passport.initialize());
 
 app.get("/health", (_req, res) => res.json({ ok: true, env: config.nodeEnv }));
 app.use("/api/auth", authRoutes);
+app.use("/api/ai",aiRouter)
 
 
 // ─── Error handler (must be last) ────────────────────────────────────────────

@@ -99,11 +99,11 @@ export default function AuthPage() {
 
   return (
     <div className="h-screen overflow-hidden flex flex-col md:flex-row font-body">
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-[#031400]">
         <div className="flex items-center justify-between px-8 py-5">
           <div className="flex items-center gap-2.5">
             <img src={Logo} alt="edutube-logo" className="h-10" />
-            <span className="font-display font-black text-gray-900 text-lg">
+            <span className="font-display font-black text-white text-lg">
               Edu<span className="text-primary-500">Tube</span>
             </span>
           </div>
@@ -119,7 +119,7 @@ export default function AuthPage() {
             {step === "email" && (
               <div key="email" className="animate-fade-in">
                 <div className="mb-8">
-                  <h1 className="font-display font-black text-[2.25rem] max-md:text-center leading-tight text-gray-900 mb-3">
+                  <h1 className="font-display font-black text-[2.25rem] max-md:text-center leading-tight text-white mb-3">
                     Sign in to{"  "}
                     <span className="text-primary-500">EduTube</span>
                   </h1>
@@ -172,7 +172,7 @@ export default function AuthPage() {
                     type="submit"
                     disabled={sendOtpMutation.isPending || !email}
                     className={cn(
-                      "w-full h-13 rounded-2xl font-display font-bold text-sm text-white transition-all flex items-center justify-center gap-2",
+                      "w-full h-13 cursor-pointer rounded-2xl font-display font-bold text-sm text-white transition-all flex items-center justify-center gap-2",
                       "bg-primary-500 hover:bg-primary-600 active:scale-[0.99]",
                       "shadow-[0_4px_20px_rgba(2,174,2,0.35)] hover:shadow-[0_6px_28px_rgba(2,174,2,0.45)]",
                       "disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed",
@@ -306,7 +306,7 @@ export default function AuthPage() {
         </div>
 
         {/* Bottom strip */}
-        <div className="px-8 py-5 border-t border-surface-100 flex items-center gap-3">
+        <div className="px-8 py-5 border-t border-primary-800 flex items-center gap-3">
           <div className="flex -space-x-1.5">
             {["#02ae02", "#7aa300", "#3df53d", "#028a02"].map((c, i) => (
               <div
@@ -318,7 +318,7 @@ export default function AuthPage() {
           </div>
           <p className="text-xs text-gray-500">
             Join{" "}
-            <span className="font-display font-bold text-gray-700">2,400+</span>{" "}
+            <span className="font-display font-bold text-gray-500">2,400+</span>{" "}
             people watching together
           </p>
         </div>

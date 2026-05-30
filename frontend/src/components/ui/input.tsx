@@ -25,7 +25,7 @@ const TextInput = ({
   onBlur?: () => void;
   placeholder?: string;
   Icon?: React.ReactNode;
-  onEnterPress?: () => void;
+  onEnterPress?: (e: any) => void;
   requiredAsterisk?: boolean;
   position?: "left" | "right";
   inputValue?: string | number;
@@ -56,68 +56,83 @@ const TextInput = ({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      // 1. Call your parent-provided "onEnterPress" handler
-      onEnterPress?.();
-      // 2. Focus on the next input if the nextInputRef is provided
+      onEnterPress?.(e);
       if (nextInputRef?.current) {
         nextInputRef.current.focus();
       }
-
-      // 2. Remove focus from the input
       e.currentTarget.blur();
     }
   };
 
   return (
-    <div
-      className={`value-input-container m-0 p-0 flex flex-col gap-2 ${className}`}
-    >
-      <label
-        className={`${
-          label && "gap-2"
-        } relative flex flex-col items-start w-full`}
-      >
-        <div className="flex flex-row items-center text-[14px] md:text-[10px] xl:text-base">
-          <p className="flex flex-row gap-2 items-center text-xs font-bold tracking-wider font-display  text-gray-500">
-            {label}
-          </p>
-          {requiredAsterisk && (
-            <span className="ml-0.5 text-red-600 text-danger-600">*</span>
-          )}
-        </div>
+    <div className={`value-input-container m-0 p-0 flex flex-col gap-2 ${className}`}>
+      <label className={`${label && "gap-2"} relative flex flex-col items-start w-full`}>
+
+        {/* Label */}
+        {(label || requiredAsterisk) && (
+          <div className="flex flex-row items-center text-[14px] md:text-[10px] xl:text-base">
+            <p className="flex flex-row gap-2 items-center text-xs font-bold tracking-wider font-display text-white/40">
+              {label}
+            </p>
+            {requiredAsterisk && (
+              <span className="ml-0.5 text-red-500">*</span>
+            )}
+          </div>
+        )}
+
+        {/* Input wrapper */}
         <div className="relative w-full">
           <input
             type="text"
             value={value}
             disabled={disabled}
-            onBlur={handleBlur} // Attach the handleBlur
+            onBlur={handleBlur}
             ref={currentInputRef}
             onFocus={handleFocus}
             onChange={handleChange}
-            onKeyDown={handleKeyDown} // Listen for Enter key
+            onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={cn(
-              "w-full h-13 px-5 rounded-2xl border-2 outline-none transition-all text-sm bg-surface-50 text-gray-900 placeholder:text-gray-400",
+              // base
+              "w-full h-12 px-5 rounded-2xl outline-none transition-all duration-200 text-sm",
+              "bg-white/3 text-white placeholder:text-white/25",
+              "border border-white/20",
+              // disabled
+              "disabled:opacity-40 disabled:cursor-not-allowed",
+              // error state
               error
-                ? "border-red-300 bg-red-50/50 focus:border-red-400 focus:shadow-[0_0_0_4px_rgba(239,68,68,0.08)]"
-                : "border-surface-200 focus:border-primary-400 focus:bg-white focus:shadow-[0_0_0_4px_rgba(2,174,2,0.08)]",
-              Icon && position === "left" ? "pl-11" : "pr-11",
+                ? "border-red-500/50 bg-red-500/5 focus:border-red-500/70 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)]"
+                : [
+                    // normal focus — green glow
+                    "focus:border-primary-700",
+                    "focus:bg-primary-900/30",
+                    "focus:shadow-[0_0_0_3px_rgba(2,174,2,0.12)]",
+                  ],
+              // icon padding
+              Icon && position === "left" ? "pl-11" : Icon ? "pr-11" : "",
             )}
           />
+
+          {/* Icon */}
           {Icon && (
             <div
-              className={`${
-                position === "left" ? "left-4" : "right-4"
-              } absolute top-1/2 -translate-y-1/2 pointer-events-none `}
+              className={cn(
+                "absolute top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-200",
+                position === "left" ? "left-4" : "right-4",
+                // icon tints green when focused, dim otherwise
+                isFocused ? "text-primary-500" : "text-white/25",
+              )}
             >
               {Icon}
             </div>
           )}
         </div>
       </label>
+
+      {/* Error message */}
       {error && (
-        <p className="text-xs text-red-500 flex items-center gap-1">
-          <span className="w-1 h-1 rounded-full bg-red-500 inline-block shrink-0" />
+        <p className="text-xs text-red-400 flex items-center gap-1.5">
+          <span className="w-1 h-1 rounded-full bg-red-400 inline-block shrink-0" />
           {error}
         </p>
       )}

@@ -1,9 +1,13 @@
 import { Toaster } from "sonner";
+import Home from "./pages/HomePage";
+import Layout from "./pages/Layout";
 import AuthPage from "./pages/AuthPage";
+import Library from "./pages/LibraryPage";
+import WatchPage from "./pages/WatchPage";
 import { Routes, Route } from "react-router-dom";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import NetworkBanner from "./components/NetworkBanner";
-import Test from "./pages/Test";
+
 export default function App() {
   const isMobile = useIsMobile();
   return (
@@ -17,13 +21,17 @@ export default function App() {
           },
         }}
       />
-      <div className="flex flex-col">
+      <div className="flex flex-col w-full">
         <div className=" w-full z-10000">
           <NetworkBanner />
         </div>
         <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/library" element={<Library />} />
+          </Route>
           <Route path="/auth" element={<AuthPage />} />
-          <Route path="/" element={<Test />} />
+          <Route path="/watch" element={<WatchPage />} />
         </Routes>
       </div>
     </>
